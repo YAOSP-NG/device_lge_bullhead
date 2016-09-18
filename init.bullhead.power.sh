@@ -85,7 +85,7 @@ write /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy 1
 write /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads "70 960000:80 1248000:85"
 write /sys/devices/system/cpu/cpu4/cpufreq/interactive/min_sample_time 40000
 write /sys/devices/system/cpu/cpu4/cpufreq/interactive/max_freq_hysteresis 80000
-write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq 633600
+write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq 384000
 
 # restore A57's max
 copy /sys/devices/system/cpu/cpu4/cpufreq/cpuinfo_max_freq /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq
@@ -99,6 +99,10 @@ write /sys/module/msm_performance/parameters/cpu_max_freq "4:4294967295 5:429496
 # input boost configuration
 write /sys/module/cpu_boost/parameters/input_boost_freq "0:960000"
 write /sys/module/cpu_boost/parameters/input_boost_ms 40
+
+# Switch to fiops scheduler and increase readahead buffer to 1024Kb
+write /sys/block/mmcblk0/queue/scheduler fiops
+write /sys/block/mmcblk0/bdi/read_ahead_kb 1024
 
 # Setting B.L scheduler parameters
 write /proc/sys/kernel/sched_migration_fixup 1
@@ -127,3 +131,23 @@ get-set-forall /sys/devices/soc.0/qcom,bcl.*/mode enable
 
 # set GPU default power level to 5 (180MHz) instead of 4 (305MHz)
 write /sys/class/kgsl/kgsl-3d0/default_pwrlevel 5
+
+# configure msm_hotplug
+write /sys/module/msm_hotplug/msm_enabled 1
+write /sys/module/msm_hotplug/update_rate 200
+write /sys/module/msm_hotplug/min_cpus_online 1
+write /sys/module/msm_hotplug/max_cpus_online 4
+write /sys/module/msm_hotplug/max_cpus_online_susp 2
+write /sys/module/msm_hotplug/offline_load 0
+write /sys/module/msm_hotplug/min_cpus_online_big 1
+write /sys/module/msm_hotplug/max_cpus_online_big 2
+write /sys/module/msm_hotplug/offline_load_big 20
+write /sys/module/msm_hotplug/online_load_big 70
+write /sys/module/msm_hotplug/kick_in_load_big 55
+write /sys/module/msm_hotplug/fast_lane_load 95
+write /sys/module/msm_hotplug/big_core_up_delay 0
+write /sys/module/msm_hotplug/io_is_busy 1
+write /sys/module/msm_hotplug/load_levels "3 160 100"
+
+# configure fingerprint boost
+write /sys/bus/spi/drivers/fpc1020/spi1.2/fingerprint_unlock_boost 0

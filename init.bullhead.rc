@@ -53,9 +53,6 @@ on property:sys.boot_completed=1
     write /sys/module/lpm_levels/parameters/sleep_disabled 0
 
 on init
-    # Load persistent dm-verity state
-    verity_load_state
-
     # Set permissions for persist partition
     mkdir /persist 0771 system system
     mkdir /firmware 0771 system system
@@ -86,9 +83,6 @@ on early-boot
     write /sys/module/pil_msa/parameters/modem_auth_timeout_ms ${persist.sys.modem_auth_timeout}
     write /sys/module/peripheral_loader/parameters/proxy_timeout_ms ${persist.sys.pil_proxy_timeout}
 
-    # Update dm-verity state and set partition.*.verified properties
-    verity_update_state
-
 on boot
     # execute script to set initial CPU settings
     # don't run as a service to avoid race conditions
@@ -116,6 +110,7 @@ on boot
     chown system system /sys/bus/spi/drivers/fpc1020/spi1.2/clk_enable
     chown system system /sys/bus/spi/drivers/fpc1020/spi1.2/wakeup_enable
     chown system system /sys/bus/spi/drivers/fpc1020/spi1.2/irq
+    chown system system /sys/bus/spi/drivers/fpc1020/spi1.2/fingerprint_unlock_boost
 
     # create symlink for fb1 as HDMI
     symlink /dev/graphics/fb1 /dev/graphics/hdmi
@@ -395,8 +390,8 @@ service atfwd /system/bin/ATFWD-daemon
     user system
     group system radio
 
-on property:ro.debuggable=1
-    start ss_ramdump
+#on property:ro.debuggable=1
+#    start ss_ramdump
 
 service ss_ramdump /system/bin/subsystem_ramdump
     class main
